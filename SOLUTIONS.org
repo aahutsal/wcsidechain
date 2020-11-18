@@ -1,0 +1,151 @@
+** Straightforward solutions (running all blockchain nodes on customer's machine)
+#+begin_src plantuml :file ./docs/images/1.png :exports results
+together {
+  "Mask.io Browser Extension" as BE
+  "Ethereum node" as ETH
+  "Polkadot node" as DOT
+  "Solana node" as SOL
+  "Near.org node" as NEAR
+  "Arweave node" as AR
+  "Kernel virtualization module" as KVM
+
+
+  cloud "localhost" as localhost {
+     node KVM <<Kernel Virtualization Module>> {
+      BE --> KVM: interacts via http://localhost:PROXY_PORT
+
+      node ETH << Blockchain Node >> {
+      }
+      node DOT << Blockchain Node >>  {
+      }
+      node SOL << Blockchain Node >>  {
+      }
+      node NEAR << Blockchain Node >>  {
+      }
+      node AR << Blockchain Node >>  {
+      }
+
+     BE ..> ETH: calls
+     BE ..> DOT: calls
+     BE ..> SOL: calls
+     BE ..> NEAR: calls
+     BE ..> AR: calls
+
+     }
+  }
+    ETH  -->  [ETH_BLOCKCHAIN]: blockchain call
+    DOT  -->  [DOT_BLOCKCHAIN]: blockchain call
+    SOL  -->  [SOL_BLOCKCHAIN]: blockchain call
+    NEAR -->  [NEAR_BLOCKCHAIN]: blockchain call
+    AR   -->  [AR_BLOCKCHAIN]: blockchain call
+
+   "Ethereum blockchain" as [ETH_BLOCKCHAIN]  <<Blockchain>>
+   "Polkadot blockchain" as [DOT_BLOCKCHAIN]  <<Blockchain>>
+   "Near blockchain" as [NEAR_BLOCKCHAIN]  <<Blockchain>>
+   "Arweave blockchain" as [AR_BLOCKCHAIN]  <<Blockchain>>
+   "Solana blockchain" as [SOL_BLOCKCHAIN]  <<Blockchain>>
+
+  note top of KVM: could be Docker, Docker swarm, Kubernetes, native install, XEN or other paravirtualization or KVM solution
+}
+#+end_src
+#+RESULTS:
+[[file:./docs/images/1.png]]
+*** Pros
+    - Supported by all blockchains
+
+*** Cons
+    - Installation will take ages to complete (docker pull for each node)
+    - First run will take ages (all nodes require syncing)
+    - We might probably re-use same DB node for multiple blockchain nodes (e.g. shared instance of PostgreSQL/MySQL), but performance will be slow
+    
+** Proxy Solution (running lightweight proxy that just URL Rewrite calls received on localhost with appropriate remote host
+#+begin_src plantuml :file ./docs/images/2.png :exports results :skinparam packageStyle
+together {
+
+  "Ethereum microservice" as ETH
+  "Polkadot microservice" as DOT
+  "Solana microservice" as SOL
+  "Near.org microservice" as NEAR
+  "Arweave microservice" as AR
+  "Microservice container" as MSServer
+
+  cloud "localhost" as localhost {
+  "Mask.io Browser Extension" as BE
+  "URL Rewriter Module" as URLRewriter <<URLRewriter Module>>
+  node MSServer  <<Microservice Container>> {
+  
+      BE --> URLRewriter: interacts via http://localhost:PROXY_PORT   
+      artifact URLRewriter  <<Microservice>> {
+      }
+
+      artifact ETH  <<Microservice>> {
+      }
+      artifact DOT  <<Microservice>> {
+      }
+      artifact SOL  <<Microservice>> {
+      }
+      artifact NEAR  <<Microservice>> {
+      }
+      artifact AR  <<Microservice>> {
+      }
+     URLRewriter ..> ETH: calls
+     URLRewriter ..> DOT: calls
+     URLRewriter ..> SOL: calls
+     URLRewriter ..> NEAR: calls
+     URLRewriter ..> AR: calls
+
+   }
+   
+    cloud "(http|https|wss)://localhost:8900/" as [SOL_LNODE] << Blockchain Node >> 
+        SOL ..> SOL_LNODE: calls local node        
+     }
+     note top of URLRewriter: could be Docker, Docker swarm, Kubernetes, native install, XEN or other paravirtualization or KVM solution
+  
+    cloud Infura {
+      "https://infura.io" as [ETH_RNODE]
+      ETH ..>  ETH_RNODE: calls remote
+    }
+    cloud Polkadot {
+     "wss://rcp.polkadot.io/" as [DOT_RNODE]
+      DOT ..>  DOT_RNODE: calls remote
+    }
+    cloud Near {
+     "https://rpc.mainnet.near.org" as [NEAR_RNODE]
+     NEAR ..> NEAR_RNODE: calls remote
+    }
+    cloud Arweave {
+     "https://arweave.org/" as [AR_RNODE]
+     AR ..>  AR_RNODE: calls remote HTTP JSON API
+    }
+
+   note top of [ETH_RNODE]: Remote Ethereum Cloud
+   note top of [DOT_RNODE]: Remote Polkadot Cloud
+   note top of [NEAR_RNODE]: Remote Near Cloud
+   note top of [AR_RNODE]: Remote Arweave Cloud
+
+}
+   ETH_RNODE  --> [ETH_BLOCKCHAIN]: calls Ethereum BLOCKCHAIN
+   DOT_RNODE  --> [DOT_BLOCKCHAIN]: calls Polkadot BLOCKCHAIN
+   NEAR_RNODE --> [NEAR_BLOCKCHAIN]: calls Near BLOCKCHAIN
+   AR_RNODE   --> [AR_BLOCKCHAIN]: calls Arweave Blockchain
+   SOL_LNODE  --> [SOL_BLOCKCHAIN]: calls Solana blockchain
+   "Ethereum blockchain" as [ETH_BLOCKCHAIN]  <<Blockchain>>
+   "Polkadot blockchain" as [DOT_BLOCKCHAIN]  <<Blockchain>>
+   "Near blockchain" as [NEAR_BLOCKCHAIN]  <<Blockchain>>
+   "Arweave blockchain" as [AR_BLOCKCHAIN]  <<Blockchain>>
+   "Solana blockchain" as [SOL_BLOCKCHAIN]  <<Blockchain>>
+#+end_src
+#+RESULTS:
+[[file:./docs/images/2.png]]
+*** Pros
+    - Much faster/lighter installation
+    - Nearly instant run (no need for node syncing)
+    - Much fewer memory/storage consumption
+*** Cons
+    - Solana (and some other) blockchains does not run public JSON RPC server. Some runs undocumented servers, but their IP and node version running are subject to change.
+      The reason is: JSON RPC servers and Web Wallets (like Coinbase and others) destroys the nature of blockchain (which need every customer to run local blockchain node). You can not fight against that
+    - Polkadot (and some other) does not support HTTP/HTTPS - only WSS:// (websockets) which makes it slightly different to be handled
+
+    
+
+
