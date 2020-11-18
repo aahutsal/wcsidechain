@@ -45,7 +45,7 @@ together {
    "Arweave blockchain" as [AR_BLOCKCHAIN]  <<Blockchain>>
    "Solana blockchain" as [SOL_BLOCKCHAIN]  <<Blockchain>>
 
-  note top of KVM: could be Docker, Docker swarm, Kubernetes, native install, XEN or other paravirtualization or KVM solution
+  note right of KVM: could be Docker, Docker swarm, Kubernetes, native install, XEN or other paravirtualization or KVM solution
 }
 #+end_src
 #+RESULTS:
@@ -94,12 +94,13 @@ together {
      URLRewriter ..> NEAR: calls
      URLRewriter ..> AR: calls
 
+     note right of URLRewriter: could be Docker, Docker swarm, Kubernetes, native install, XEN or other paravirtualization or KVM solution
    }
    
     cloud "(http|https|wss)://localhost:8900/" as [SOL_LNODE] << Blockchain Node >> 
         SOL ..> SOL_LNODE: calls local node        
      }
-     note top of URLRewriter: could be Docker, Docker swarm, Kubernetes, native install, XEN or other paravirtualization or KVM solution
+     
   
     cloud Infura {
       "https://infura.io" as [ETH_RNODE]
