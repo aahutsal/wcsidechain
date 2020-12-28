@@ -3,7 +3,7 @@ FROM ubuntu:latest
 RUN apt update && apt upgrade -y
 RUN DEBIAN_FRONTEND="noninteractive" apt install curl libssl-dev libudev-dev pkg-config zlib1g-dev llvm clang make git -y
 
-RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -- -y
+RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
 
 
 RUN source $HOME/.cargo/env
