@@ -1,0 +1,14 @@
+FROM ubuntu:latest
+
+RUN apt update && apt upgrade -y
+RUN DEBIAN_FRONTEND="noninteractive" apt install curl libssl-dev libudev-dev pkg-config zlib1g-dev llvm clang make git -y
+
+RUN curl https://sh.rustup.rs -sSf | sh
+
+RUN source $HOME/.cargo/env
+
+RUN git clone https://github.com/solana-labs/solana.git \
+  cd solana \
+  cargo build
+
+CMD cd /root/solana && ./run.sh
