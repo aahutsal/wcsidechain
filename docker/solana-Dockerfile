@@ -6,9 +6,11 @@ RUN DEBIAN_FRONTEND="noninteractive" apt install curl libssl-dev libudev-dev pkg
 RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
 
 
-RUN bash -c "source $HOME/.cargo/env && \
-    git clone https://github.com/solana-labs/solana.git &&\
-    cd solana && \
-    cargo build"
+RUN bash -c "source $HOME/.cargo/env \
+  && git clone https://github.com/solana-labs/solana.git \
+  && cd solana \
+  && cargo build"
 
-CMD cd $HOME/solana && ./run.sh
+WORKDIR /solana
+CMD ./run.sh
+
