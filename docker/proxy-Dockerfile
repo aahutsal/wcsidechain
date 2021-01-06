@@ -1,0 +1,12 @@
+FROM node:latest
+
+
+ADD packages /proxy/packages
+ADD package.json /proxy/package.json
+ADD tsconfig.json /proxy/tsconfig.json
+WORKDIR /proxy
+RUN yarn
+RUN yarn global add tsc
+RUN npx tsc
+
+CMD node /proxy/dist/lib/index.js

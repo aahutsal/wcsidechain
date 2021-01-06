@@ -11,4 +11,5 @@ RUN bash -c "source $HOME/.cargo/env \
   && cd solana \
   && cargo build"
 
-CMD cd /root/solana && ./run.sh
+WORKDIR /solana
+CMD ./run.sh
