@@ -3,7 +3,7 @@
   "version": "0.0.0",
   "description": "> TODO: description",
   "author": "Arsen A. Gutsal <gutsal.arsen@gmail.com>",
-  "homepage": "https://github.com/aahutsal/neo-walletconnect#readme",
+  "homepage": "https://github.com/aahutsal/wcsidechain#readme",
   "license": "ISC",
   "main": "lib/solana.js",
   "directories": {
@@ -15,12 +15,12 @@
   ],
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/aahutsal/neo-walletconnect.git"
+    "url": "git+https://github.com/aahutsal/wcsidechain.git"
   },
   "scripts": {
     "test": "echo \"Error: run tests from root\" && exit 1"
   },
   "bugs": {
-    "url": "https://github.com/aahutsal/neo-walletconnect/issues"
+    "url": "https://github.com/aahutsal/wcsidechain/issues"
   }
 }
