@@ -24,7 +24,8 @@ Created sidechain for such blockchains: Ethereum, NEO, Arweave, NEAR, Polkadot, 
   $ cd wcsidechain
   $ yarn # builing
 #+end_src
-#+RESULTS: 
+#+RESULTS:
+: /bin/bash
 ** Running
    To run the code we have to provide the following environment variables:
 *** PROXY_CONFIG='0.0.0.0:3000' # which IP/port to use to bind our service in form <IP:PORT>
