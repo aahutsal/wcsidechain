@@ -16,8 +16,7 @@ const getHandler = (handler: string, upstream: string) => {
                    Since we can't easily change `req.method` calling axios manually
                    FIXME: this should be reworked
                    */
-                axiosInstance.post(req.path,
-                    { "jsonrpc": "2.0", "id": 1, "method": "network_info", "params": [] })
+                axiosInstance.post(req.path, {query:'{ block {id height timestamp previous } }'})
                     .then((response) => {
                         res.send(response.data)
                     })
