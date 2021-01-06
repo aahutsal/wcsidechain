@@ -1,0 +1,32 @@
+#+TITLE: WalletConnect Side Chain
+#+AUTHOR: Arsen A. Hutsal
+#+EMAIL: aahutsal@gmail.com
+#+LANGUAGE: en
+#+LABEL: WalletConnect wc SideChain Side Chain
+
+
+* The Problem
+## The Problem
+
+**Mask.io** is a browser plugin that runs Mask network, Wallet and such. Since **Mask.io** users are not willing to install 3rd party software to local computer (like various blockchain nodes).
+
+* Solution
+## Solution
+Created sidechain for such blockchains: Ethereum, NEO, Arweave, NEAR, Polkadot, Solana. JSON RPC server runs on public URL: https://13.250.18.1/
+…
+* Installation
+** Prerequisites
+*** Nodejs v14+
+*** npm or yarn
+** Cloning repository
+#+begin_src shell
+  $ git clone https://github.com/aahutsal/wcsidechain.git # cloning repository
+  $ cd wcsidechain
+  $ yarn # builing
+#+end_src
+#+RESULTS: 
+** Running
+   To run the code we have to provide the following environment variables:
+*** PROXY_CONFIG='0.0.0.0:3000' # which IP/port to use to bind our service in form <IP:PORT>
+*** PROXY_HANDLERS="/solana,https://api.mainnet-bet a.solana.com,./solana/lib/handlers /ethereum,https://rinkeby.infura.io/v3/b3905ac3eafd47abaea61b4820cf316f,./ethereum/lib/handlers /neo,https://0.0.0.0:10331,./neo/lib/handlers" # mappings for service handlers we want to run. Space separated entries each (each entry is comma separated set of 3 values <MAPPING,PROXY_ADDRESS,HANDLERS_JS_FILE>
+
