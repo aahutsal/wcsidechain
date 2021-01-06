@@ -1,0 +1,27 @@
+{
+  "name": "near",
+  "version": "0.0.0",
+  "description": "> TODO: description",
+  "author": "Arsen A. Gutsal <gutsal.arsen@gmail.com>",
+  "homepage": "https://github.com/aahutsal/wcsidechain#readme",
+  "license": "ISC",
+  "directories": {
+    "lib": "lib",
+    "test": "__tests__"
+  },
+  "files": [
+    "lib"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/aahutsal/wcsidechain.git"
+  },
+  "scripts": {
+    "build":"npx tsc",
+    "run":"yarn run build && ts-node packages/",
+    "test": "echo \"Error: run tests from root\" && exit 1"
+  },
+  "bugs": {
+    "url": "https://github.com/aahutsal/wcsidechain/issues"
+  }
+}
