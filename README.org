@@ -6,12 +6,9 @@
 
 
 * The Problem
-## The Problem
-
 **Mask.io** is a browser plugin that runs Mask network, Wallet and such. Since **Mask.io** users are not willing to install 3rd party software to local computer (like various blockchain nodes).
 
 * Solution
-## Solution
 Created sidechain for such blockchains: Ethereum, NEO, Arweave, NEAR, Polkadot, Solana. JSON RPC server runs on public URL: https://13.250.18.1/
 …
 * Installation
@@ -24,8 +21,6 @@ Created sidechain for such blockchains: Ethereum, NEO, Arweave, NEAR, Polkadot, 
   $ cd wcsidechain
   $ yarn # builing
 #+end_src
-#+RESULTS:
-: /bin/bash
 ** Running
    To run the code we have to provide the following environment variables:
 *** PROXY_CONFIG='0.0.0.0:3000' # which IP/port to use to bind our service in form <IP:PORT>
