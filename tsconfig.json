@@ -9,11 +9,14 @@
     "experimentalDecorators": true,
     "target": "es6",
     "sourceMap": true,
+    "esModuleInterop": true,
+    "moduleResolution": "node",
+    "outDir": "dist",
     "lib": [
       "es6"
     ]
   },
-  "include": ["packages/**/lib/*.ts"],
+    "include": ["packages/**/lib/*.ts", "packages/**/*.ts"],
   "exclude": [
     "node_modules",
     "**/*.spec.ts"
