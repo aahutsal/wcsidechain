@@ -11,13 +11,13 @@ const getHandler = (handler: string, upstream: string) => {
 
     let preHandler = async (req, res) => {
         switch (req.url) {
-            case "/solana/getFeeees": {
+            case "/ethereum/getFeeees": {
                 /**
                    Since we can't easily change `req.method` calling axios manually
                    FIXME: this should be reworked
                    */
                 axiosInstance.post(req.path,
-                    { "jsonrpc": "2.0", "id": 1, "method": "getFees" })
+                    { "jsonrpc": "2.0", "id": 1, "method": "eth_blockNumber", "params": [] })
                     .then((response) => {
                         res.send(response.data)
                     })
