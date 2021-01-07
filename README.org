@@ -25,7 +25,16 @@ Created sidechain for such blockchains: Ethereum, NEO, Arweave, NEAR, Polkadot, 
    To run the code we have to provide the following environment variables:
 - PROXY_CONFIG='0.0.0.0:3000' # which IP/port to use to bind our service in form <IP:PORT>
 - PROXY_HANDLERS="/solana,https://api.mainnet-bet a.solana.com,./solana/lib/handlers /ethereum,https://rinkeby.infura.io/v3/b3905ac3eafd47abaea61b4820cf316f,./ethereum/lib/handlers /neo,https://0.0.0.0:10331,./neo/lib/handlers" # mappings for service handlers we want to run. Space separated entries each (each entry is comma separated set of 3 values <MAPPING,PROXY_ADDRESS,HANDLERS_JS_FILE>
-
 #+begin_src shell
-  $ PROXY_CONFIG=0.0.0.0:3000 PROXY_HANDLERS="/solana,https://api.mainnet-beta.solana.com,./solana/lib/handlers /ethereum,https://rinkeby.infura.io/v3/b3905ac3eafd47abaea61b4820cf316f,./ethereum/lib/handlers /neo,https://0.0.0.0:10331,./neo/lib/handlers /polkadot,https://rpc.polkadot.io,./polkadot/lib/handlers /neo,https://,./arweave/lib/handlers" npx ts-node packages/index.ts 
+  $ PROXY_CONFIG=0.0.0.0:3000 PROXY_HANDLERS="/solana,https://api.mainnet-beta.solana.com,./solana/lib/handlers /ethereum,https://rinkeby.infura.io/v3/b3905ac3eafd47abaea61b4820cf316f,./ethereum/lib/handlers /neo,https://0.0.0.0:10331,./neo/lib/handlers /polkadot,https://rpc.polkadot.io,./polkadot/lib/handlers /arweave,https://arweave.dev/graphql,./arweave/lib/handlers" npx ts-node packages/index.ts 
 #+end_src
+** How to test
+   At this moment handlers for all blockchains are mapped to a single HTTP GET REST method /<blockchain_name>/getFeeees, which calls different methods on different blockchains (mostly to demonstrate how we turn GET into JSON RPC 2.0 POST, or GraphQL call).
+   #+begin_src shell
+               $ sudo apt install httpie
+               $ http get http://localhost:3000/solana/getFeeees
+               $ http get http://localhost:3000/ethereum/getFeeees
+               $ http get http://localhost:3000/neo/getFeeees
+               $ http get http://localhost:3000/polkadot/getFeeees
+               $ http get http://localhost:3000/arweave/getFeeees
+   #+end_src
