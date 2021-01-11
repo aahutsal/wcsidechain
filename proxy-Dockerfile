@@ -1,0 +1,12 @@
+FROM node:latest
+
+ADD ./packages /proxy/packages
+ADD ./package.json /proxy/package.json
+ADD ./tsconfig.json /proxy/tsconfig.json
+WORKDIR /proxy
+RUN yarn install
+RUN yarn build
+
+CMD node /proxy/dist/lib/index.js
+
+FROM nodejs:alpine
