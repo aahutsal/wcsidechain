@@ -2144,12 +2144,12 @@ fastify-error@^0.2.0:
   resolved "https://registry.yarnpkg.com/fastify-error/-/fastify-error-0.2.0.tgz#9a1c28d4f42b6259e7a549671c8e5e2d85660634"
   integrity sha512-zabxsBatj59ROG0fhP36zNdc5Q1/eYeH9oSF9uvfrurZf8/JKfrJbMcIGrLpLWcf89rS6L91RHWm20A/X85hcA==
 
-fastify-http-proxy@^4.1.0:
-  version "4.1.0"
-  resolved "https://registry.yarnpkg.com/fastify-http-proxy/-/fastify-http-proxy-4.1.0.tgz#297721862894f2a39a8b165661b17be90a8e10b4"
-  integrity sha512-QrON9SJqD1sop8h88TtBt/Xl+TmGqWrp/ZJeak31KQAGnnSKc8El8Apz2dzkDFNUOZJ7mluwfNvPHOuHzFgkeg==
+fastify-http-proxy@^4.3.1:
+  version "4.4.0"
+  resolved "https://registry.yarnpkg.com/fastify-http-proxy/-/fastify-http-proxy-4.4.0.tgz#70957567ce0cdde459d3bc5172a11b459ea64c2a"
+  integrity sha512-kDVdzLaLyPTj2l98R0fKE0HeU0c2Fyk0xpxqbPxGXT+NZAKiKbSQfPLknk6wI599XVX7g5y3EDTqheHojGZoMA==
   dependencies:
-    fastify-reply-from "^3.1.3"
+    fastify-reply-from "^4.0.2"
     ws "^7.4.1"
 
 fastify-plugin@^3.0.0:
@@ -2157,10 +2157,10 @@ fastify-plugin@^3.0.0:
   resolved "https://registry.yarnpkg.com/fastify-plugin/-/fastify-plugin-3.0.0.tgz#cf1b8c8098e3b5a7c8c30e6aeb06903370c054ca"
   integrity sha512-ZdCvKEEd92DNLps5n0v231Bha8bkz1DjnPP/aEz37rz/q42Z5JVLmgnqR4DYuNn3NXAO3IDCPyRvgvxtJ4Ym4w==
 
-fastify-reply-from@^3.1.3:
-  version "3.4.0"
-  resolved "https://registry.yarnpkg.com/fastify-reply-from/-/fastify-reply-from-3.4.0.tgz#a055d3358262bbdb57e817895f479d7f5fb0452e"
-  integrity sha512-q+U77Y1Vt1+fCkpPVcUQDWhQ9HfqjGlF5Ifb1ZCXB+EiOmJJGlZo0CACp4lkwCjiHOR882/8b4e969/6o9NpLQ==
+fastify-reply-from@^4.0.2:
+  version "4.0.2"
+  resolved "https://registry.yarnpkg.com/fastify-reply-from/-/fastify-reply-from-4.0.2.tgz#14d0b9dee26bc15b2450483c001a360f9aacdd9c"
+  integrity sha512-O7wP3IAOVt6fq8klznQmYK9bq6ues6LHthK0M2160LydD3RRRbCUhkOueYTRX20dCLXwGbAQmxpdKR+BE8qTTQ==
   dependencies:
     end-of-stream "^1.4.1"
     fastify-plugin "^3.0.0"
