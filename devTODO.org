@@ -1,0 +1,6 @@
+* TODO make tests runing
+  :LOGBOOK:
+  CLOCK: [2021-07-29 чт 08:45]
+  CLOCK: [2021-07-29 чт 08:28]--[2021-07-29 чт 08:45] =>  0:17
+  :END:
+* TODO compete today's code

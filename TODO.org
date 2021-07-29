@@ -1,0 +1,10 @@
+* TODO [#A] Restructure docker directories
+* TODO [#A] Migrate code to use JSON RPC 2.0 `@jashkasoft/nestjs-json-rpc` package
+* TODO [#A] Complete Dockerfile(s) for proxy and blockchain node run
+  Make sure Dockerfile accepts env variables to run respected 
+* TODO [#A] Complete docker-compose.yml
+  Make sure docker-compose accepts env variables to run specific build (prod, dev, test)
+* TODO [#B] Make tests
+  Make sure test are running using local private networks or public test-nets
+* TODO [#A] Complete code so it actually invokes wallet create/drop routines
+
