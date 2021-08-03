@@ -17,11 +17,20 @@
     "url": "git+https://github.com/aahutsal/wcsidechain.git"
   },
   "scripts": {
-    "build":"npx tsc",
-    "run":"yarn run build && ts-node packages/",
+    "build": "npx tsc",
+    "run": "yarn run build && ts-node packages/",
     "test": "echo \"Error: run tests from root\" && exit 1"
   },
   "bugs": {
     "url": "https://github.com/aahutsal/wcsidechain/issues"
+  },
+  "devDependencies": {
+    "@babel/preset-typescript": "^7.14.5",
+    "@types/jest": "^26.0.24",
+    "ts-jest": "^27.0.4"
+  },
+  "dependencies": {
+    "arweave": "^1.10.16",
+    "axios": "^0.21.1"
   }
 }

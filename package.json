@@ -1,37 +1,61 @@
 {
-  "name": "wcsidechain",
-  "private": true,
-  "devDependencies": {
-    "lerna": "^3.22.1",
-    "ts-node": "^9.1.1",
-    "tslint": "^6.1.3"
-  },
-  "dependencies": {
-    "@types/node": "^14.14.10",
-    "axios": "^0.21.1",
-    "fast-json-body": "^1.1.0",
-    "fastify": "^3.9.2",
-    "fastify-http-proxy": "^4.1.0",
-    "typescript": "^4.1.3"
-  },
-  "version": "0.0.1",
-  "main": "index.js",
-  "directories": {
-    "doc": "docs"
-  },
-  "scripts": {
-    "start": "tsc && node dist/lib/index.js",
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/aahutsal/wcsidechain.git"
-  },
-  "author": "aahutsal@gmail.com (Arsen A. Hutsal)",
-  "license": "ISC",
-  "bugs": {
-    "url": "https://github.com/aahutsal/wcsidechain/issues"
-  },
-  "homepage": "https://github.com/aahutsal/wcsidechain#readme",
-  "description": ""
+    "name": "wcsidechain",
+    "private": true,
+    "devDependencies": {
+        "@babel/core": "^7.12.13",
+        "@babel/plugin-proposal-class-properties": "^7.12.13",
+        "@babel/plugin-proposal-decorators": "^7.12.13",
+        "@babel/plugin-proposal-object-rest-spread": "^7.12.13",
+        "@babel/plugin-syntax-class-properties": "^7.12.13",
+        "@babel/plugin-transform-runtime": "^7.12.15",
+        "@babel/preset-env": "^7.12.13",
+        "@babel/preset-flow": "^7.12.13",
+        "@babel/preset-react": "^7.12.13",
+        "@babel/preset-typescript": "^7.12.13",
+        "@nestjs/testing": "^7.6.5",
+        "@types/jest": "^26.0.24",
+        "babel-jest": "^26.6.3",
+        "babel-plugin-parameter-decorator": "^1.0.16",
+        "babel-plugin-transform-class-properties": "^6.24.1",
+        "babel-plugin-transform-es2015-destructuring": "^6.23.0",
+        "babel-plugin-transform-object-rest-spread": "^6.26.0",
+        "jest": "^26.6.3",
+        "lerna": "^3.22.1",
+        "reflect-metadata": "^0.1.13",
+        "ts-jest": "^26.5.4",
+        "ts-node": "^9.1.1",
+        "tslint": "^6.1.3"
+    },
+    "dependencies": {
+        "@types/node": "^14.14.10",
+        "fast-json-body": "^1.1.0",
+        "fast-proxy": "^2.0.0",
+        "fastify": "^3.9.2",
+        "fastify-http-proxy": "^4.1.0",
+        "restana": "^4.8.1",
+        "typescript": "^4.2.3",
+        "uuid": "^7.0.3",
+        "web3": "^1.5.0"
+    },
+    "version": "0.0.1",
+    "main": "index.js",
+    "directories": {
+        "doc": "docs"
+    },
+    "scripts": {
+        "build": "npx tsc",
+        "start": "npx yarn build && node dist/index.js",
+        "test": "lerna link && lerna run --parallel test"
+    },
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/aahutsal/wcsidechain.git"
+    },
+    "author": "aahutsal@gmail.com (Arsen A. Hutsal)",
+    "license": "ISC",
+    "bugs": {
+        "url": "https://github.com/aahutsal/wcsidechain/issues"
+    },
+    "homepage": "https://github.com/aahutsal/wcsidechain#readme",
+    "description": ""
 }
