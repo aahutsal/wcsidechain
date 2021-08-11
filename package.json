@@ -27,7 +27,11 @@
         "tslint": "^6.1.3"
     },
     "dependencies": {
-        "@types/node": "^14.14.10",
+        "@ethereumjs/tx": "^3.3.0",
+        "@types/node": "^16.4.13",
+        "axios": "^0.21.1",
+        "bluebird": "^3.7.2",
+        "dotenv-flow": "^3.2.0",
         "fast-json-body": "^1.1.0",
         "fast-proxy": "^2.0.0",
         "fastify": "^3.9.2",

@@ -1,0 +1,8 @@
+* DONE let's run the application
+  CLOSED: [2021-08-10 вт 17:05]
+* DONE lets check the balance
+  CLOSED: [2021-08-10 вт 17:05]
+* DONE Let's do some transfer
+  CLOSED: [2021-08-10 вт 17:06]
+
+

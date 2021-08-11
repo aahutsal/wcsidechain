@@ -1,99 +1,85 @@
 "use strict"
-
-import fastify, { preHandlerAsyncHookHandler, preHandlerHookHandler, onRequestHookHandler, FastifyLoggerInstance, FastifyInstance, FastifyLoggerOptions } from 'fastify'
-import { Server, IncomingMessage, ServerResponse } from 'http'
-
-import axios from 'axios'
-import web3 from 'web3'
+import { TransactionFactory } from '@ethereumjs/tx';
 const Arweave = require('arweave')
+import { JWKInterface } from 'arweave/node/lib/wallet';
+import { assert } from 'console';
 
-const ai = axios.create({ baseURL: 'https://arweave.dev/' })
-const ar = Arweave.init({})
+export let ar: typeof Arweave.Arweave
 import rootLogger from '../../logger'
+import { readJSONFromFileAsync } from '../../utils';
 const logger = rootLogger.child({ defaultMeta: { service: 'arweave-handler' } });
+const eth2LocalTable = {}
 
-function ethAddressToSidechainAddress(ethAddress: string, sidechainContract: string): string {
-  logger.debug('Looking up for ', ethAddress)
-  switch (sidechainContract) {
-    case "0xbeed000000000000000000000000000000000001":
-      switch (ethAddress) {
-        case "6c7623eed8fb55de471b3afa2f44afcc2e2946d4": return "mRJnY8pQhOBfnU3IsTo6M_yIRyA3TlMjkzYrv0SOrhw";
-        default: throw Error(`Address "$ethAddress" not found in address table`)
-      }
-    case "0xbeed000000000000000000000000000000000002":
-          switch (ethAddress) {
-            case "6c7623eed8fb55de471b3afa2f44afcc2e2946d4": return "83astBRguLMdt2h5U1Tpdq5tjFoJ6noeGwaY3mDLVcri"
-            default: throw Error(`Address "$ethAddress" not found in address table`)
+export async function init(opts: any = undefined): Promise<string> {
+  logger.debug('Initing Arweave with opts:', opts)
+  ar = Arweave.init(Object.assign({
+    host: process.env.ARWEAVE_HOST || 'arweave.net', // Hostname or IP address for a Arweave host
+    port: parseInt(process.env.ARWEAVE_PORT) || 443, // Port
+    protocol: process.env.ARWEAVE_PROTOCOL || 'https',  // Network protocol http or https
+    timeout: parseInt(process.env.ARWEAVE_TIMEOUT) || 20000,     // Network request timeouts in milliseconds
+    logging: process.env.ARWEAVE_LOGGING || false,     // Enable network request logging
+  }, opts))
+
+  // Loading Arweave keys
+  Object.assign(eth2LocalTable, {
+    "6C7623EED8FB55DE471B3AFA2F44AFCC2E2946D4": {
+      address: "Dwvyt0mjqzrwj62vnucavm6cr1qbuijr5ejqdq43i78",
+      key: readJSONFromFileAsync('/home/archer/arweave-keyfile-mRJnY8pQhOBfnU3IsTo6M_yIRyA3TlMjkzYrv0SOrhw.json')
+    },
+    "D2236A1CCD4CED06E16EB1585C8C474969A6CCFE": {
+      address: "mRJnY8pQhOBfnU3IsTo6M_yIRyA3TlMjkzYrv0SOrhw",
+      key: readJSONFromFileAsync('/home/archer/Downloads/arweave-key-BUSINESS-DwVyt0MjqZrwJ62VnUCavm6CR1qBUiJr5Ejqdq43I78.json')
+    }
+  })
+  // waiting for all keys to load
+  await Promise.all(Object.keys(eth2LocalTable).map(key => eth2LocalTable[key].key))
+
+  return Promise.resolve("0xbeed000000000000000000000000000000000001")
+}
+
+function eth2local(ethAddress: string): string {
+  const sidechainAddress = eth2LocalTable[ethAddress.toUpperCase()].address
+  logger.debug(`Found ${ethAddress}:${sidechainAddress}`)
+  return sidechainAddress
+}
+
+export async function balanceOf(address: string): Promise<number> {
+  const localWalletAddress = eth2local(address.toUpperCase())
+  logger.debug('Looking up for balance on ', localWalletAddress)
+  return ar.wallets
+    .getBalance(localWalletAddress)
+    .then((winstonBalance) => {
+      const arBalance: string = ar.ar.winstonToAr(winstonBalance);
+
+      logger.debug('Windows, arBalance balances:', { winstonBalance, arBalance });
+      //0.125213858712
+      return parseInt(winstonBalance, 10) //FIXME: return arBalance not winstonBalance
+    });
+}
+
+export async function transfer(from: string, to: string, amount: number): Promise<any> {
+  const localFromAddress = eth2local(from)
+  const localToAddress = eth2local(to)
+  assert(localFromAddress != undefined,
+    'localFromAddress should not be undefined')
+  assert(localToAddress != undefined,
+    'localToAddress should not be undefined')
+
+  logger.debug(`going to send transaction from ${localFromAddress} to ${localToAddress} amount: ${amount}`)
+  return eth2LocalTable[from.toUpperCase()]
+    .key
+    .then((jwk: JWKInterface) =>
+      ar
+        .createTransaction({
+          target: localToAddress,
+          quantity: amount.toString()
+        }, jwk)
+        .then((tx: any) => {
+          return {
+            none: ar.transactions.sign(tx, jwk),
+            tx
           }
-      }
+        })
+        .catch(logger.error))
+        .then(({ tx }) => ar.transactions.post(tx))
 }
-async function jsonRpc20Processor(req): Promise<any> {
-  const reqBody = req.body
-  let { jsonrpc, id, method, params }: any = reqBody
-
-  logger.debug('jsonRpc20Processor:', { jsonrpc, id, method, params })
-  switch (method) {
-    case 'net_version': return {
-      id, jsonrpc, result: "1"
-    };
-    case 'eth_call': {
-      const { to, data } = params[0]
-      const walletAddress = data.substring(34);
-      logger.debug("to, data", {to, data})
-
-      if (data.startsWith(web3.utils.sha3("balanceOf(address)").substring(0, 10)))
-        switch (to) {
-          // ARWEAVE
-          case "0xbeed000000000000000000000000000000000001":
-            return axios
-                .get("http://arweave.net/wallet/" + ethAddressToSidechainAddress(walletAddress, to) + "/balance")
-                .then(resp => {
-                  return {
-                    jsonrpc,
-                    id,
-                    result: "0x" + resp.data.toString(16)
-                  }
-                })
-                .catch(logger.error)
-          // SOLANA
-          case "0xbeed000000000000000000000000000000000002":
-            return axios
-              .post("http://api.devnet.solana.com/",
-                {
-                  jsonrpc,
-                  id,
-                  method: "getBalance",
-                params: [ethAddressToSidechainAddress(walletAddress, to)]
-              })
-              .then(resp => {
-                return {
-                  id, jsonrpc,
-                  result: "0x" + resp.data.result.value.toString(16)
-                }
-              })
-              .catch(logger.error)
-        }
-      else {
-        return axios
-          .post("http://localhost:8545", reqBody)
-          .then(resp => {
-            logger.debug("RESPONSE:", resp.data)
-            return resp.data
-          })
-      }
-    };
-    default:
-      return axios.post("http://localhost:8545", reqBody).then(resp => {
-        logger.debug("RESPONSE:", resp.data)
-        return resp.data
-      })
-  }
-}
-
-
-function decorateServer(server: FastifyInstance<Server, IncomingMessage, ServerResponse, FastifyLoggerInstance>, prefix: string, upstream: string): any {
-  logger.debug(upstream)
-  server.post('/arweave', jsonRpc20Processor)
-}
-
-export { decorateServer, jsonRpc20Processor }
