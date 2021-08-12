@@ -1,12 +1,11 @@
 "use strict"
-import { TransactionFactory } from '@ethereumjs/tx';
 const Arweave = require('arweave')
 import { JWKInterface } from 'arweave/node/lib/wallet';
 import { assert } from 'console';
 
 export let ar: typeof Arweave.Arweave
-import rootLogger from '../../logger'
-import { readJSONFromFileAsync } from '../../utils';
+import rootLogger from '../../../logger'
+import { readJSONFromFileAsync } from '../../../utils';
 const logger = rootLogger.child({ defaultMeta: { service: 'arweave-handler' } });
 const eth2LocalTable = {}
 

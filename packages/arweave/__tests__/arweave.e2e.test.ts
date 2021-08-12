@@ -1,7 +1,14 @@
-import { randomBytes } from 'crypto'
-import {server, configureServer, getHandlers, jsonRpc20Processor} from '../../index'
-import TestWeave from 'testweave-sdk';
+require('dotenv-flow').config()
 
+import { randomBytes } from 'crypto'
+import { server, configureServer, getHandlers, jsonRpc20Processor } from '../../../index'
+import { promisify } from 'util';
+const { toChecksumAddress, BN } = require("ethereumjs-util");
+import Ganache from 'ganache-core'
+// import TestWeave from 'testweave-sdk';
+
+// Web3.prototype.setProvider(require("ganache-cli").provider())
+console.log('PROCESS.ENV', process.env)
 // init TestWeave on the top of arweave
 
 // 0x06fdde03 -> [ function ] name
@@ -22,17 +29,78 @@ const FakeRequest = {
   jsonrpc: "2.0",
   method: "",
 }
+let GServer
+let accounts:any[], addresses:string[] // global ganache-provided accounts and its addresses
 
 describe('wcsidechain/arweave handler', () => {
   beforeAll(async (done) => {
     jest.setTimeout(60000)
 
-    return configureServer()
-      .then(done)
+    var options = {
+      port: 8545,
+      hostname: 'localhost',
+      debug: false,
+      // seed: argv.s,
+      // mnemonic: argv.m,
+      // total_accounts: argv.a,
+      // default_balance_ether: argv.e,
+      // blockTime: argv.b,
+      // gasPrice: argv.g,
+      // gasLimit: argv.l,
+      // callGasLimit: argv.callGasLimit,
+      // accounts: parseAccounts(argv.account),
+      // unlocked_accounts: argv.unlock,
+      // fork: argv.f,
+      // forkCacheSize: argv.forkCacheSize,
+      // hardfork: argv.k,
+      // network_id: argv.i,
+      // verbose: argv.v,
+      // secure: argv.n,
+      // db_path: argv.db,
+      // hd_path: argv.hdPath,
+      // account_keys_path: argv.account_keys_path,
+      // vmErrorsOnRPCResponse: !argv.noVMErrorsOnRPCResponse,
+      // logger: logger,
+      // allowUnlimitedContractSize: argv.allowUnlimitedContractSize,
+      // time: argv.t,
+      // keepAliveTimeout: argv.keepAliveTimeout,
+      // _chainId: argv.chainId,
+      // // gross!
+      // _chainIdRpc: argv.chainId
+    }
+
+    GServer = Ganache.server(options)
+    return promisify(GServer.listen)(options)
+      .then((result) => {
+        const state: typeof GServer.provider.manager.state = result ? result : GServer.provider.manager.state;
+
+        accounts = state.accounts;
+        addresses = Object.keys(accounts);
+        var ethInWei = new BN("1000000000000000000");
+
+        addresses.forEach(function(address:string, index) {
+          var balance = new BN(accounts[address].account.balance);
+          var strBalance = balance.divRound(ethInWei).toString();
+          var about = balance.mod(ethInWei).isZero() ? "" : "~";
+          var line = `(${index}) ${toChecksumAddress(address)} (${about}${strBalance} ETH)`;
+
+          if (state.isUnlocked(address) == false) {
+            line += " 🔒";
+          }
+
+          console.log(line);
+        });
+      })
+      .then(() => configureServer().then(done))
   })
 
-  afterAll(async () => {
-    return server.close()
+  afterAll((done) => {
+    console.log('CLOSING SERVERS');
+    return promisify(GServer.close)().
+      then(() => {
+      server.close()
+        .then(done)
+    })
   })
 
   it('eth_sendRawTransaction', async (done) => {
@@ -44,7 +112,7 @@ describe('wcsidechain/arweave handler', () => {
 
     })
     return jsonRpc20Processor({ body: fakeRequest })
-      .then((response:any) => {
+      .then((response: any) => {
         expect(response.error).toBeUndefined()
         expect(response).toHaveProperty('result')
         expect(response.result).toBeDefined()
@@ -58,10 +126,10 @@ describe('wcsidechain/arweave handler', () => {
       body: {
         id: '0x' + randomBytes(16).toString('hex'),
         method: 'eth_getTransactionCount',
-        params: ["0xbeed000000000000000000000000000000000001",'latest']
+        params: ["0xbeed000000000000000000000000000000000001", 'latest']
       }
     })
-      .then((response:any) =>
+      .then((response: any) =>
         jsonRpc20Processor({
           body: {
             ...FakeRequest,
@@ -71,7 +139,8 @@ describe('wcsidechain/arweave handler', () => {
               to: "0xbeed000000000000000000000000000000000001",
               data: "0x70a08231000000000000000000000000d2236a1ccd4ced06e16eb1585c8c474969a6ccfe"
             }, response.value]
-          } }))
+          }
+        }))
       .then(response => {
         console.debug("response:", response)
         return response
