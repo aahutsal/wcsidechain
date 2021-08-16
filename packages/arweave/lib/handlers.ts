@@ -1,13 +1,23 @@
 "use strict"
 const Arweave = require('arweave')
 import { JWKInterface } from 'arweave/node/lib/wallet';
-import { assert } from 'console';
 
 export let ar: typeof Arweave.Arweave
 import rootLogger from '../../../logger'
 import { readJSONFromFileAsync } from '../../../utils';
 const logger = rootLogger.child({ defaultMeta: { service: 'arweave-handler' } });
-const eth2LocalTable = {}
+const eth2LocalTable: {}= {
+  // Preloading my own keys
+  "6C7623EED8FB55DE471B3AFA2F44AFCC2E2946D4": {
+    address: "Dwvyt0mjqzrwj62vnucavm6cr1qbuijr5ejqdq43i78",
+    jwk: readJSONFromFileAsync('/home/archer/arweave-key-PERSONAL-mRJnY8pQhOBfnU3IsTo6M_yIRyA3TlMjkzYrv0SOrhw.json')
+  },
+    "D2236A1CCD4CED06E16EB1585C8C474969A6CCFE": {
+      address: "mRJnY8pQhOBfnU3IsTo6M_yIRyA3TlMjkzYrv0SOrhw",
+      key: readJSONFromFileAsync('/home/archer/arweave-key-BUSINESS-DwVyt0MjqZrwJ62VnUCavm6CR1qBUiJr5Ejqdq43I78.json')
+    }
+
+}
 
 export async function init(opts: any = undefined): Promise<string> {
   logger.debug('Initing Arweave with opts:', opts)
@@ -19,21 +29,13 @@ export async function init(opts: any = undefined): Promise<string> {
     logging: process.env.ARWEAVE_LOGGING || false,     // Enable network request logging
   }, opts))
 
-  // Loading Arweave keys
-  Object.assign(eth2LocalTable, {
-    "6C7623EED8FB55DE471B3AFA2F44AFCC2E2946D4": {
-      address: "Dwvyt0mjqzrwj62vnucavm6cr1qbuijr5ejqdq43i78",
-      key: readJSONFromFileAsync('/home/archer/arweave-keyfile-mRJnY8pQhOBfnU3IsTo6M_yIRyA3TlMjkzYrv0SOrhw.json')
-    },
-    "D2236A1CCD4CED06E16EB1585C8C474969A6CCFE": {
-      address: "mRJnY8pQhOBfnU3IsTo6M_yIRyA3TlMjkzYrv0SOrhw",
-      key: readJSONFromFileAsync('/home/archer/Downloads/arweave-key-BUSINESS-DwVyt0MjqZrwJ62VnUCavm6CR1qBUiJr5Ejqdq43I78.json')
-    }
-  })
   // waiting for all keys to load
-  await Promise.all(Object.keys(eth2LocalTable).map(key => eth2LocalTable[key].key))
-
-  return Promise.resolve("0xbeed000000000000000000000000000000000001")
+  return Promise.all([
+    // Loading Arweave keys
+    async () => registerWallet("6C7623EED8FB55DE471B3AFA2F44AFCC2E2946D4", readJSONFromFileAsync('/home/archer/arweave-keyfile-mRJnY8pQhOBfnU3IsTo6M_yIRyA3TlMjkzYrv0SOrhw.json')),
+    async () => registerWallet("D2236A1CCD4CED06E16EB1585C8C474969A6CCFE", readJSONFromFileAsync('/home/archer/arweave-key-BUSINESS-DwVyt0MjqZrwJ62VnUCavm6CR1qBUiJr5Ejqdq43I78.json'))
+  ])
+    .then(() => Promise.resolve("0xbeed0000000000000000000000000000000001"))
 }
 
 function eth2local(ethAddress: string): string {
@@ -42,8 +44,8 @@ function eth2local(ethAddress: string): string {
   return sidechainAddress
 }
 
-export async function balanceOf(address: string): Promise<number> {
-  const localWalletAddress = eth2local(address.toUpperCase())
+export async function balanceOf(ethAddress: string): Promise<string> {
+  const localWalletAddress = eth2local(ethAddress.toUpperCase())
   logger.debug('Looking up for balance on ', localWalletAddress)
   return ar.wallets
     .getBalance(localWalletAddress)
@@ -52,21 +54,21 @@ export async function balanceOf(address: string): Promise<number> {
 
       logger.debug('Windows, arBalance balances:', { winstonBalance, arBalance });
       //0.125213858712
-      return parseInt(winstonBalance, 10) //FIXME: return arBalance not winstonBalance
+      return parseInt(winstonBalance).toString() //FIXME: return arBalance not winstonBalance
     });
 }
 
-export async function transfer(from: string, to: string, amount: number): Promise<any> {
-  const localFromAddress = eth2local(from)
-  const localToAddress = eth2local(to)
-  assert(localFromAddress != undefined,
+export async function transfer(fromEthAddress: string, toEthAddress: string, amount: number): Promise<any> {
+  const localFromAddress = eth2local(fromEthAddress)
+  const localToAddress = eth2local(toEthAddress)
+  console.assert(localFromAddress != undefined,
     'localFromAddress should not be undefined')
-  assert(localToAddress != undefined,
+  console.assert(localToAddress != undefined,
     'localToAddress should not be undefined')
 
   logger.debug(`going to send transaction from ${localFromAddress} to ${localToAddress} amount: ${amount}`)
-  return eth2LocalTable[from.toUpperCase()]
-    .key
+  return eth2LocalTable[fromEthAddress.toUpperCase()]
+    .jwk
     .then((jwk: JWKInterface) =>
       ar
         .createTransaction({
@@ -81,4 +83,17 @@ export async function transfer(from: string, to: string, amount: number): Promis
         })
         .catch(logger.error))
         .then(({ tx }) => ar.transactions.post(tx))
+}
+export async function registerWallet(ethAddress:string, jwk: any) {
+  return ar.wallets.jwkToAddress(jwk)
+    .then((address:string) => {
+      eth2LocalTable[ethAddress.toUpperCase()] = {
+        address,
+        jwk
+      }
+    })
+}
+
+export function getWalletsRegistered(){
+  return eth2LocalTable
 }

@@ -26,7 +26,7 @@ const handlerMagicNumbers:any = {}
 export function getHandlers():any{
   return handlerMagicNumbers
 }
-export async function configureServer() {
+export async function configureServer(): Promise<void> {
   logger.debug('Handers found:', handlers)
   logger.debug('{host, port}:', host, port)
   proxyConfig.handlers.forEach(async (handlerConfig: string) => {
@@ -39,7 +39,7 @@ export async function configureServer() {
     const handlerAddress = await handler.init(opts)
     handlerMagicNumbers[handlerAddress] = handler
   })
-  console.log('MAGIC NUMBERS', handlerMagicNumbers)
+  logger.debug('MAGIC NUMBERS', handlerMagicNumbers)
 }
 
 export async function jsonRpc20Processor(req: { body: any; }): Promise<any> {
@@ -141,11 +141,11 @@ export async function jsonRpc20Processor(req: { body: any; }): Promise<any> {
       }
       if (data.startsWith(Web3.utils.sha3("balanceOf(address)").substring(0, 10)))
         return handler.balanceOf(ethWalletAddress)
-          .then((balance: number) => {
+          .then((balance: string) => {
             return {
               jsonrpc,
               id,
-              result: "0x" + balance.toString(16)
+              result: parseInt(balance).toString(16)
             }
           })
           .catch((reason) => logger.error("Catch handler:", reason))

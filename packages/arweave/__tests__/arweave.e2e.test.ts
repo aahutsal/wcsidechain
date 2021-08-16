@@ -1,14 +1,18 @@
 require('dotenv-flow').config()
 
+import { ar, getWalletsRegistered, init, balanceOf } from '../lib/handlers'
+
 import { randomBytes } from 'crypto'
 import { server, configureServer, getHandlers, jsonRpc20Processor } from '../../../index'
 import { promisify } from 'util';
 const { toChecksumAddress, BN } = require("ethereumjs-util");
+import logger from '../../../logger'
 import Ganache from 'ganache-core'
-// import TestWeave from 'testweave-sdk';
+
+import TestWeave from 'testweave-sdk';
 
 // Web3.prototype.setProvider(require("ganache-cli").provider())
-console.log('PROCESS.ENV', process.env)
+logger.debug('PROCESS.ENV', process.env)
 // init TestWeave on the top of arweave
 
 // 0x06fdde03 -> [ function ] name
@@ -32,10 +36,13 @@ const FakeRequest = {
 let GServer
 let accounts:any[], addresses:string[] // global ganache-provided accounts and its addresses
 
-describe('wcsidechain/arweave handler', () => {
+describe('wcsidechain/arweave e2e', () => {
+  let initResult
+  let testWeave:TestWeave
+
   beforeAll(async (done) => {
     jest.setTimeout(60000)
-
+exports
     var options = {
       port: 8545,
       hostname: 'localhost',
@@ -69,6 +76,15 @@ describe('wcsidechain/arweave handler', () => {
       // _chainIdRpc: argv.chainId
     }
 
+    initResult = await init({
+      host: 'localhost',
+      port: 1984,
+      protocol: 'http',
+      timeout: 20000,
+      logging: false
+    })
+    testWeave = await TestWeave.init(ar);
+
     GServer = Ganache.server(options)
     return promisify(GServer.listen)(options)
       .then((result) => {
@@ -88,14 +104,14 @@ describe('wcsidechain/arweave handler', () => {
             line += " 🔒";
           }
 
-          console.log(line);
+          logger.debug(line);
         });
       })
       .then(() => configureServer().then(done))
   })
 
   afterAll((done) => {
-    console.log('CLOSING SERVERS');
+    logger.debug('CLOSING SERVERS');
     return promisify(GServer.close)().
       then(() => {
       server.close()
@@ -121,7 +137,7 @@ describe('wcsidechain/arweave handler', () => {
       .catch(fail).finally(done)
   })
 
-  it('eth_call ARWEAVE balanceOf', async (done) => {
+  it('eth_call ARWEAVE balanceOf empty wallet', async (done) => {
     return jsonRpc20Processor({
       body: {
         id: '0x' + randomBytes(16).toString('hex'),
@@ -148,28 +164,56 @@ describe('wcsidechain/arweave handler', () => {
       .then((response: any) => {
         expect(response).toBeDefined()
         expect(response).toHaveProperty('result')
-        expect(parseInt(response.result, 16)).toBeGreaterThan(0)
+        expect(response.result).toEqual('0x')
       })
       .catch(fail).finally(done)
   })
-  // it('eth_call SOLANA', async (done) => {
-  //   const fakeRequest = {
-  //     ...FakeRequest,
-  //     method: "eth_call",
-  //     // Filling eth_call requesting DAI address balance
-  //     params: [{ to: "0xbeed000000000000000000000000000000000002", data: "0x70a082310000000000000000000000006c7623eed8fb55de471b3afa2f44afcc2e2946d4"  }, "0x0"]
-  //   }
-  //   return jsonRpc20Processor({ body: fakeRequest })
-  //     .then(response => {
-  //       console.debug("response:", response)
-  //       return response
-  //     })
-  //     .then((response: any) => {
-  //       expect(response).toBeDefined()
-  //       expect(response).toHaveProperty('result')
-  //       expect(response.result).toBeDefined()
-  //     })
-  //     .catch(fail).finally(done)
-  // })
-
+  it('eth_call ARWEAVE balanceOf non-empty wallet', async (done) => {
+    const localEthAddress = "d2236a1ccd4ced06e16eb1585c8c474969a6ccfe";
+    const localArAddress = getWalletsRegistered()[localEthAddress.toUpperCase()].address;
+    const decBalance = '199998436088';
+    const hexBalance = parseInt(decBalance).toString(16)
+    return testWeave
+      .drop(localArAddress,  '20000')
+      .then(() => {
+        return balanceOf(localEthAddress)
+      })
+      .then((szBalance) => {
+        expect(szBalance).toEqual("199998436088")
+      })
+      .then( () => jsonRpc20Processor({
+      body: {
+        id: '0x' + randomBytes(16).toString('hex'),
+        method: 'eth_getTransactionCount',
+        params: ["0xbeed0000000000000000000000000000000001", 'latest']
+      }
+    })
+      .then((response: any) =>
+        jsonRpc20Processor({
+          body: {
+            ...FakeRequest,
+            method: "eth_call",
+            // Filling eth_call requesting `AR` address balance
+            params: [{
+              to: "0xbeed0000000000000000000000000000000001",
+              data: "0x70a08231000000000000000000000000d2236a1ccd4ced06e16eb1585c8c474969a6ccfe"
+            }, response.value]
+          }
+        })
+          .then(response => {
+            console.debug("response:", response)
+            return response
+          })
+          .then((response: any) => {
+            return ar.wallets.getBalance(localArAddress)
+              .then((balance:string) => {
+                expect(balance).toEqual(decBalance)
+                expect(response).toBeDefined()
+                expect(response).toHaveProperty('result')
+                console.log(response.result)
+                expect(response.result).toEqual(hexBalance)
+             })
+          })
+          .catch(fail).finally(done)))
+  })
 })

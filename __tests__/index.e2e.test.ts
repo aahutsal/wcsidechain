@@ -5,6 +5,7 @@ import { server, configureServer, jsonRpc20Processor } from '../index'
 import { promisify } from 'util';
 const { toChecksumAddress, BN } = require("ethereumjs-util");
 import Ganache from 'ganache-core'
+import logger from '../logger'
 
 const FakeRequest = {
   id: randomBytes(16).toString('hex'),
@@ -70,7 +71,7 @@ describe('wcsidechain main routines', () => {
             line += " 🔒";
           }
 
-          console.log(line);
+          logger.debug(line);
         })
       })
       .then(() => configureServer())
@@ -78,7 +79,7 @@ describe('wcsidechain main routines', () => {
   })
 
   afterAll((done) => {
-    console.log('CLOSING SERVERS');
+   xo logger.debug('CLOSING SERVERS');
     return promisify(GServer.close)().
       then(() => {
         server.close()

@@ -1,12 +1,15 @@
-FROM node:latest
+FROM node:alpine AS builder
 
 ADD ./packages /proxy/packages
 ADD ./package.json /proxy/package.json
 ADD ./tsconfig.json /proxy/tsconfig.json
 WORKDIR /proxy
+RUN npm i -g npm
 RUN yarn install
 RUN yarn build
 
-CMD node /proxy/dist/lib/index.js
+FROM alpine:latest
+RUN apk --no-cache add ca-certificates
+COPY --from=builder /proxy/dist/* /opt
 
-FROM nodejs:alpine
+CMD node /opt/lib/index.js
