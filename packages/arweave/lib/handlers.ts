@@ -1,12 +1,12 @@
 "use strict"
 const Arweave = require('arweave')
-import { JWKInterface } from 'arweave/node/lib/wallet';
+import { JWKInterface } from 'arweave/node/lib/wallet'
 export let ar: typeof Arweave.Arweave
 
-import { readJSONFromFileAsync } from '../../../utils';
+import { readJSONFromFileAsync } from '../../../utils'
 
 import rootLogger from '../../../logger'
-const logger = rootLogger.child({ defaultMeta: { service: 'arweave-handler' } });
+const logger = rootLogger.child({ defaultMeta: { service: 'arweave-handler' } })
 
 require('dotenv-flow').config()
 const eth2LocalTable: any = {
@@ -41,8 +41,7 @@ export async function init(opts: any = undefined): Promise<string> {
 
   // waiting for all keys to load
   return Promise.all(
-    process.env.ARWEAVE_PRELOAD_KEYS
-      .split(" ")
+    process.env.ARWEAVE_PRELOAD_KEYS?.split(" ")
       .map(k => k.split(":"))
       .map((([address, keyFile]) => registerWallet(address, readJSONFromFileAsync(keyFile))))
   )

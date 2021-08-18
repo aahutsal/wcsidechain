@@ -180,9 +180,7 @@ exports
     return testWeave
       .drop(localArAddress,  szDonation)
       .then(() => balanceOf(localEthAddress))
-      .then((szBalance) => {
-        expect(szBalance).toEqual(szDonation)
-      })
+      .then((szBalance) => expect(szBalance).toEqual(szDonation))
       .then( () => jsonRpc20Processor({
       body: {
         id: '0x' + randomBytes(16).toString('hex'),
@@ -201,21 +199,19 @@ exports
               data: "0x70a08231000000000000000000000000d2236a1ccd4ced06e16eb1585c8c474969a6ccfe"
             }, response.value]
           }
-        })
-          .then(response => {
-            console.debug("response:", response)
-            return response
-          })
-          .then((response: any) => 
-            ar.wallets.getBalance(localArAddress)
-              .then((balance:string) => {
-                expect(balance).toEqual(decBalance)
-                expect(response).toBeDefined()
-                expect(response).toHaveProperty('result')
-                console.log(response.result)
-                expect(response.result).toEqual(hexBalance)
-              })
-          )
-          .catch(fail).finally(done)))
+        }))
+      .then(response => {
+        console.debug("response:", response)
+        return response
+      })
+      .then((response: any) => 
+        ar.wallets.getBalance(localArAddress)
+          .then((balance:string) => {
+            expect(balance).toEqual(decBalance)
+            expect(response).toBeDefined()
+            expect(response).toHaveProperty('result')
+            expect(response.result).toEqual(hexBalance)
+          }))
+      .catch(fail).finally(done))
   })
 })
