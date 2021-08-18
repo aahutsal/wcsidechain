@@ -50,7 +50,7 @@
     "scripts": {
         "build": "npx tsc",
         "start": "npx yarn build && node dist/index.js",
-        "test": "lerna link && lerna run --parallel test"
+        "test": "jest"
     },
     "repository": {
         "type": "git",

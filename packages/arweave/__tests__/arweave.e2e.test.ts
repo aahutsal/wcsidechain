@@ -1,6 +1,6 @@
 require('dotenv-flow').config()
 
-import { ar, getWalletsRegistered, init, balanceOf } from '../lib/handlers'
+import { ar, getWalletsRegistered, init, balanceOf, registerWallet } from '../lib/handlers'
 
 import { randomBytes } from 'crypto'
 import { server, configureServer, getHandlers, jsonRpc20Processor } from '../../../index'
@@ -170,16 +170,20 @@ exports
   })
   it('eth_call ARWEAVE balanceOf non-empty wallet', async (done) => {
     const localEthAddress = "d2236a1ccd4ced06e16eb1585c8c474969a6ccfe";
+
+    await registerWallet(localEthAddress, ar.wallets.generate())
     const localArAddress = getWalletsRegistered()[localEthAddress.toUpperCase()].address;
-    const decBalance = '199998436088';
+
+    const szDonation = '20000';
+    const decBalance = szDonation;
     const hexBalance = parseInt(decBalance).toString(16)
     return testWeave
-      .drop(localArAddress,  '20000')
+      .drop(localArAddress,  szDonation)
       .then(() => {
         return balanceOf(localEthAddress)
       })
       .then((szBalance) => {
-        expect(szBalance).toEqual("199998436088")
+        expect(szBalance).toEqual(szDonation)
       })
       .then( () => jsonRpc20Processor({
       body: {

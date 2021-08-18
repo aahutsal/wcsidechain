@@ -79,7 +79,7 @@ describe('wcsidechain main routines', () => {
   })
 
   afterAll((done) => {
-   xo logger.debug('CLOSING SERVERS');
+    logger.debug('CLOSING SERVERS');
     return promisify(GServer.close)().
       then(() => {
         server.close()

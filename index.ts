@@ -1,3 +1,4 @@
+require('dotenv-flow').config()
 import fastify, { FastifyInstance, FastifyLoggerInstance, FastifyLoggerOptions } from 'fastify'
 
 import { Server, IncomingMessage, ServerResponse } from 'http'
@@ -9,7 +10,7 @@ import rootLogger from './logger';
 const logger = rootLogger.child({ defaultMeta: { service: 'index' } });
 
 const ax = axios.create({
-  baseURL: "http://localhost:8545"
+  baseURL: "http://localhost:1984"
 })
 // Create a http server. We pass the relevant typings for our http version used.
 // By passing types we get correctly typed access to the underlying http objects in routes.
@@ -35,8 +36,8 @@ export async function configureServer(): Promise<void> {
     logger.info(`handler {preHandlerJS} decorating`, { upstream, preHandlerJS, protocol, host, port })
     const handler = require(preHandlerJS)
     let opts:any = { protocol, host, port }
-    delete opts.port
     const handlerAddress = await handler.init(opts)
+    console.log("Adding handlerMagicNumberf, handlerAddress")
     handlerMagicNumbers[handlerAddress] = handler
   })
   logger.debug('MAGIC NUMBERS', handlerMagicNumbers)
@@ -65,7 +66,7 @@ export async function jsonRpc20Processor(req: { body: any; }): Promise<any> {
       function decodeTx(hex: string):Transaction {
         var buf = Buffer.from(hex.slice(2), 'hex');
         var tx = Transaction.fromSerializedTx(buf)
-        logger.debug('tx', tx)
+       //logger.debug('tx', tx)
         return tx
       };
 
@@ -182,8 +183,8 @@ export async function jsonRpc20Processor(req: { body: any; }): Promise<any> {
     }
   }
   // calling this by default if not handled sooner
-  logger.debug("Calling default handler with:", reqBody)
-  //return ax.post("http://localhost:8545", reqBody).then(resp => {
+  logger.debug("Calling default handler:", process.env.ETHEREUM_UPSTREAM)
+  logger.debug("POST body:", reqBody)
   return ax.post(process.env.ETHEREUM_UPSTREAM, reqBody).then(resp => {
     logger.debug("RESPONSE:", resp.data)
     return resp.data
