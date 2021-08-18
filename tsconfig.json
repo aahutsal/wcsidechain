@@ -16,7 +16,7 @@
       "es6"
     ]
   },
-    "include": ["packages/**/lib/*.ts", "packages/*.ts"],
+  "include": ["*.ts", "packages/**/lib/*.ts", "packages/*.ts"],
   "exclude": [
     "node_modules",
     "**/*.spec.ts",
