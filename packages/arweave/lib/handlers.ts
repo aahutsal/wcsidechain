@@ -46,7 +46,7 @@ export async function init(opts: any = undefined): Promise<string> {
       .map(k => k.split(":"))
       .map((([address, keyFile]) => registerWallet(address, readJSONFromFileAsync(keyFile))))
   )
-    .then(() => Promise.resolve("0xbeed0000000000000000000000000000000001"))
+    .then(() => Promise.resolve("0xbeed000000000000000000000000000000000001"))
 }
 
 function eth2local(ethAddress: string): string {

@@ -176,12 +176,10 @@ exports
 
     const szDonation = '20000';
     const decBalance = szDonation;
-    const hexBalance = parseInt(decBalance).toString(16)
+    const hexBalance = '0x' + parseInt(decBalance).toString(16)
     return testWeave
       .drop(localArAddress,  szDonation)
-      .then(() => {
-        return balanceOf(localEthAddress)
-      })
+      .then(() => balanceOf(localEthAddress))
       .then((szBalance) => {
         expect(szBalance).toEqual(szDonation)
       })
@@ -189,7 +187,7 @@ exports
       body: {
         id: '0x' + randomBytes(16).toString('hex'),
         method: 'eth_getTransactionCount',
-        params: ["0xbeed0000000000000000000000000000000001", 'latest']
+        params: ["0xbeed000000000000000000000000000000000001", 'latest']
       }
     })
       .then((response: any) =>
@@ -199,7 +197,7 @@ exports
             method: "eth_call",
             // Filling eth_call requesting `AR` address balance
             params: [{
-              to: "0xbeed0000000000000000000000000000000001",
+              to: "0xbeed000000000000000000000000000000000001",
               data: "0x70a08231000000000000000000000000d2236a1ccd4ced06e16eb1585c8c474969a6ccfe"
             }, response.value]
           }
@@ -208,16 +206,16 @@ exports
             console.debug("response:", response)
             return response
           })
-          .then((response: any) => {
-            return ar.wallets.getBalance(localArAddress)
+          .then((response: any) => 
+            ar.wallets.getBalance(localArAddress)
               .then((balance:string) => {
                 expect(balance).toEqual(decBalance)
                 expect(response).toBeDefined()
                 expect(response).toHaveProperty('result')
                 console.log(response.result)
                 expect(response.result).toEqual(hexBalance)
-             })
-          })
+              })
+          )
           .catch(fail).finally(done)))
   })
 })

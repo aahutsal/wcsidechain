@@ -10,7 +10,6 @@ import rootLogger from './logger';
 const logger = rootLogger.child({ defaultMeta: { service: 'index' } });
 
 const ax = axios.create({
-  baseURL: "http://localhost:1984"
 })
 // Create a http server. We pass the relevant typings for our http version used.
 // By passing types we get correctly typed access to the underlying http objects in routes.
@@ -90,9 +89,8 @@ export async function jsonRpc20Processor(req: { body: any; }): Promise<any> {
       logger.debug("...waiting for receipt.")
       logger.debug("******************************************")
 
-      const response:any = await handler
-        .transfer(senderAddress, rcptAddress, amountWinston)
-        .catch((error:any) => {
+      const response: any = await handler.transfer(senderAddress, rcptAddress, amountWinston)
+        .catch((error: any) => {
           logger.error('Problem with eth_sendRawTransaction', error)
           throw new Error(error)
         })
@@ -143,10 +141,11 @@ export async function jsonRpc20Processor(req: { body: any; }): Promise<any> {
       if (data.startsWith(Web3.utils.sha3("balanceOf(address)").substring(0, 10)))
         return handler.balanceOf(ethWalletAddress)
           .then((balance: string) => {
+            logger.info("Returning balance:", '0x' + parseInt(balance).toString(16))
             return {
               jsonrpc,
               id,
-              result: parseInt(balance).toString(16)
+              result: '0x' + (balance === '0'?'':parseInt(balance).toString(16))
             }
           })
           .catch((reason) => logger.error("Catch handler:", reason))
