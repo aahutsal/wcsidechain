@@ -150,11 +150,13 @@ export async function jsonRpc20Processor(req: { body: any; }): Promise<any> {
           })
           .catch((reason) => logger.error("Catch handler:", reason))
       else if (data.startsWith(Web3.utils.sha3("decimals()").substring(0, 10)))
+        return handler.decimals()
+          .then((num) => {
         return {
           jsonrpc,
           id,
-          result: 8
-        }
+          result: num
+        }})
       // else if (data.startsWith(Web3.utils.sha3("transfer(address,address)").substring(0, 10)))
         // return handler.transfer(ethWalletAddress, ){
         //   jsonrpc,

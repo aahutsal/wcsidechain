@@ -4,5 +4,8 @@
   CLOSED: [2021-08-10 вт 17:05]
 * DONE Let's do some transfer
   CLOSED: [2021-08-10 вт 17:06]
-
+* make sure AR tests works
+* clone AR code to SOL
+* make sure SOL test works
+* make the video
 

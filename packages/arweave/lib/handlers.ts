@@ -8,7 +8,6 @@ import { readJSONFromFileAsync } from '../../../utils'
 import rootLogger from '../../../logger'
 const logger = rootLogger.child({ defaultMeta: { service: 'arweave-handler' } })
 
-require('dotenv-flow').config()
 const eth2LocalTable: any = {
 }
 
@@ -66,6 +65,9 @@ export async function balanceOf(ethAddress: string): Promise<string> {
     // });
 }
 
+export async function decimals():Promise<number> {
+  return Promise.resolve(18)
+}
 export async function transfer(fromEthAddress: string, toEthAddress: string, amount: number): Promise<any> {
   const localFromAddress = eth2local(fromEthAddress)
   const localToAddress = eth2local(toEthAddress)
@@ -75,20 +77,13 @@ export async function transfer(fromEthAddress: string, toEthAddress: string, amo
     'localToAddress should not be undefined')
 
   logger.debug(`going to send transaction from ${localFromAddress} to ${localToAddress} amount: ${amount}`)
-  return eth2LocalTable[fromEthAddress.toUpperCase()]
-    .jwk
-    .then((jwk: JWKInterface) =>
-      ar
-        .createTransaction({
+  return Promise.resolve(eth2LocalTable[fromEthAddress.toUpperCase()].jwk)
+    .then((jwk: JWKInterface) => ar.createTransaction({
           target: localToAddress,
           quantity: amount.toString()
-        }, jwk)
-        .then((tx: any) => {
-          return {
-            none: ar.transactions.sign(tx, jwk),
-            tx
-          }
-        })
-        .catch(logger.error))
-        .then(({ tx }) => ar.transactions.post(tx))
+    }, jwk)
+    .then(async (tx: any) => {
+      return ar.transactions.sign(tx, jwk)
+        .then(() => ar.transactions.post(tx))
+    }))
 }

@@ -2,9 +2,7 @@ require('dotenv-flow').config()
 
 import { randomBytes } from 'crypto'
 import { server, configureServer, jsonRpc20Processor } from '../index'
-import { promisify } from 'util';
 const { toChecksumAddress, BN } = require("ethereumjs-util");
-import Ganache from 'ganache-core'
 import logger from '../logger'
 
 const FakeRequest = {
@@ -12,11 +10,10 @@ const FakeRequest = {
   jsonrpc: "2.0",
   method: "",
 }
-let GServer
 let accounts, addresses // global ganache-provided accounts and its addresses
 
 describe('wcsidechain main routines', () => {
-  beforeAll(async (done) => {
+  beforeAll(async () => {
     jest.setTimeout(60000)
 
     var options = {
@@ -52,42 +49,29 @@ describe('wcsidechain main routines', () => {
       // _chainIdRpc: argv.chainId
     }
 
-    GServer = Ganache.server(options)
-    promisify(GServer.listen)(options)
-      .then((result) => {
-        const state: typeof GServer.provider.manager.state = result ? result : GServer.provider.manager.state;
+    Promise.resolve(() => {
+      // const state: typeof GServer.provider.manager.state = result ? result : GServer.provider.manager.state;
 
-        accounts = state.accounts;
-        addresses = Object.keys(accounts);
-        var ethInWei = new BN("1000000000000000000");
+      // accounts = state.accounts;
+      // addresses = Object.keys(accounts);
+      // var ethInWei = new BN("1000000000000000000");
 
-        addresses.forEach(function(address, index) {
-          var balance = new BN(accounts[address].account.balance);
-          var strBalance = balance.divRound(ethInWei).toString();
-          var about = balance.mod(ethInWei).isZero() ? "" : "~";
-          var line = `(${index}) ${toChecksumAddress(address)} (${about}${strBalance} ETH)`;
+      // addresses.forEach(function(address, index) {
+      //   var balance = new BN(accounts[address].account.balance);
+      //   var strBalance = balance.divRound(ethInWei).toString();
+      //   var about = balance.mod(ethInWei).isZero() ? "" : "~";
+      //   var line = `(${index}) ${toChecksumAddress(address)} (${about}${strBalance} ETH)`;
 
-          if (state.isUnlocked(address) == false) {
-            line += " 🔒";
-          }
+      //   if (state.isUnlocked(address) == false) {
+      //     line += " 🔒";
+      //   }
 
-          logger.debug(line);
-        })
+      //   logger.debug(line);
       })
       .then(() => configureServer())
-      .then(done)
   })
 
-  afterAll((done) => {
-    logger.debug('CLOSING SERVERS');
-    return promisify(GServer.close)().
-      then(() => {
-        server.close()
-          .then(done)
-      })
-  })
-
-  it('net_version', async (done) => {
+  it('net_version', async () => {
     const fakeRequest = ({
       ...FakeRequest,
       method: "net_version"
@@ -99,20 +83,20 @@ describe('wcsidechain main routines', () => {
         expect(response.jsonrpc).toEqual("2.0")
         expect(new Date().getTime() - response.result).toBeGreaterThan(0)
       })
-      .catch(fail).finally(done)
+      .catch(fail)
   })
 
-  it('eth_chainId', async (done) => {
+  it('eth_chainId', async () => {
     const fakeRequest = ({
       ...FakeRequest,
       method: "eth_chainId"
     })
     return jsonRpc20Processor({ body: fakeRequest })
       .then((response: any) => expect(response.result).toEqual("0x540"))
-      .catch(fail).finally(done)
+      .catch(fail)
   })
 
-  it('eth_blockNumber', async (done) => {
+  it('eth_blockNumber', async () => {
     const fakeRequest = ({
       ...FakeRequest,
       method: "eth_blockNumber"
@@ -122,10 +106,10 @@ describe('wcsidechain main routines', () => {
         expect(response.result).toBeDefined()
         expect(parseInt(response.result, 16)).toBeDefined()
       })
-      .catch(fail).finally(done)
+      .catch(fail)
   })
 
-  it('eth_getBlockByNumber', async (done) => {
+  it('eth_getBlockByNumber', async () => {
     const fakeRequest = ({
       ...FakeRequest,
       method: "eth_getBlockByNumber",
@@ -133,6 +117,6 @@ describe('wcsidechain main routines', () => {
     })
     return jsonRpc20Processor({ body: fakeRequest })
       .then((response: any) => expect(response.result).toBeDefined())
-      .catch(fail).finally(done)
+      .catch(fail)
   })
 })

@@ -1,5 +1,3 @@
-require('dotenv-flow').config()
-
 import { ar, getWalletsRegistered, init, balanceOf, registerWallet } from '../lib/handlers'
 
 import { randomBytes } from 'crypto'
@@ -113,10 +111,21 @@ exports
   afterAll((done) => {
     logger.debug('CLOSING SERVERS');
     return promisify(GServer.close)().
-      then(() => {
-      server.close()
-        .then(done)
-    })
+      then(() => server.close().then(done))
+  })
+
+  it('testing testWave setup', async () => {
+    jest.setTimeout(5000) // allowing 5 seconds for test to complete
+    const donation: number = 20000
+    return ar.wallets.generate()
+      .then((jwk: any) => ar.wallets.jwkToAddress(jwk))
+      .then((address: string) => {
+        return ar.wallets.getBalance(address)
+          .then(it => expect(it).toEqual("0"))
+          .then(() => testWeave.drop(address, donation.toString()))
+          .then(() => ar.wallets.getBalance(address))
+          .then(it => expect(parseInt(it)).toEqual(donation))
+      })
   })
 
   it('eth_sendRawTransaction', async (done) => {
