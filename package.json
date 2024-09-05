@@ -30,21 +30,21 @@
         "tslint": "^6.1.3"
     },
     "dependencies": {
-        "@ethereumjs/tx": "^3.3.0",
+        "@ethereumjs/tx": "^4.0.0",
         "@types/node": "^16.4.13",
-        "arweave": "^1.10.16",
-        "axios": "^0.21.1",
+        "arweave": "^1.12.3",
+        "axios": "^1.6.8",
         "bluebird": "^3.7.2",
         "dotenv-flow": "^3.2.0",
         "fast-json-body": "^1.1.0",
         "fast-proxy": "^2.0.0",
-        "fastify": "^3.9.2",
-        "fastify-http-proxy": "^4.1.0",
+        "fastify": "^4.24.1",
+        "fastify-http-proxy": "^6.3.0",
         "restana": "^4.8.1",
         "typescript": "^4.2.3",
         "uuid": "^7.0.3",
-        "web3": "^1.5.0",
-        "winston": "^3.3.3"
+        "web3": "^4.0.1",
+        "winston": "^3.3.4"
     },
     "version": "0.0.1",
     "main": "index.js",
