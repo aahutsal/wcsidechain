@@ -39,7 +39,7 @@
         "fast-json-body": "^1.1.0",
         "fast-proxy": "^2.0.0",
         "fastify": "^3.9.2",
-        "fastify-http-proxy": "^4.1.0",
+        "fastify-http-proxy": "^6.3.0",
         "restana": "^4.8.1",
         "typescript": "^4.2.3",
         "uuid": "^7.0.3",
