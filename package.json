@@ -32,7 +32,7 @@
     "dependencies": {
         "@ethereumjs/tx": "^3.3.0",
         "@types/node": "^16.4.13",
-        "arweave": "^1.10.16",
+        "arweave": "^1.12.3",
         "axios": "^0.21.1",
         "bluebird": "^3.7.2",
         "dotenv-flow": "^3.2.0",
